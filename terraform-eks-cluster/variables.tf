@@ -15,3 +15,27 @@ variable "vpc_name" {
     type = string
     default = "onbeach-test-vpc"
 }
+
+variable "ecr_name" {
+  description = "name of the ECR registry"
+  type = string
+  default = "onbeach_ecr"
+}
+
+variable "image_mutability" {
+  description = "provide image mutability"
+  type = string
+  default = "MUTABLE"
+}
+
+variable "encrypt_type" {
+  description = "provide type of encryption here"
+  type = string
+  default = "KMS"
+}
+
+variable "tags" {
+  description = "the key-value maps for tagging"
+  type = map(string)
+  default = {}
+}

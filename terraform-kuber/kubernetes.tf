@@ -16,7 +16,7 @@ data "terraform_remote_state" "eks" {
     backend = "local"
 
     config = {
-        path = "/Users/gaoxiang.huang/K8S/learn-terraform-provision-eks-cluster/terraform.tfstate"
+        path = "../terraform-eks-cluster/terraform.tfstate"
     }
 }
 
@@ -39,42 +39,32 @@ provider "kubernetes" {
     }
 }
 
-#resource "null_resource" "java" {
-#    depends_on = [module.eks]
-#    provisioner "local-exec" {
-#        command     = "aws eks --region us-east-1  update-kubeconfig --name $AWS_CLUSTER_NAME"
-#        environment = {
-#            AWS_CLUSTER_NAME = local.cluster_name
-#        }
-#    }
-#}
-
 resource "kubernetes_deployment" "java" {
     metadata {
-        name   = "microservice-deployment"
+        name   = var.deployment_name
         labels = {
-            app = "java-microservice"
+            app = var.project_label
         }
     }
     spec {
         replicas = 2
         selector {
             match_labels = {
-                app = "java-microservice"
+                app = var.project_label
             }
         }
         template {
             metadata {
                 labels = {
-                    app = "java-microservice"
+                    app = var.project_label
                 }
             }
             spec {
                 container {
-                    image = "160071257600.dkr.ecr.us-east-1.amazonaws.com/oneapptest:latest"
-                    name  = "java-microservice-container"
+                    image = var.container_image
+                    name  = var.container_name
                     port {
-                        container_port = 8080
+                        container_port = var.container_port
                     }
                 }
             }
@@ -84,11 +74,11 @@ resource "kubernetes_deployment" "java" {
 resource "kubernetes_service" "java" {
     depends_on = [kubernetes_deployment.java]
     metadata {
-        name = "java-microservice-service"
+        name = var.service_name
     }
     spec {
         selector = {
-            app = "java-microservice"
+            app = var.project_label
         }
         port {
             port        = 80
