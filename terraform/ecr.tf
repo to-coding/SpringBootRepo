@@ -1,6 +1,6 @@
 # Create ECR repository
 resource "aws_ecr_repository" "demo-repository" {
-  name                 = "demo-repo"
+  name                 = "new-demo-repo"
   image_tag_mutability = "IMMUTABLE"
 }
 
