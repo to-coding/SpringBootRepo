@@ -2,6 +2,14 @@ provider "aws" {
   region = var.region
 }
 
+cloud {
+  organization = "example-org-b53b57"
+
+  workspaces {
+    name = "SpringBootRepo"
+  }
+}
+
 data "aws_availability_zones" "available" {}
 
 resource "random_string" "suffix" {
