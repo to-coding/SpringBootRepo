@@ -10,13 +10,14 @@ permissions:
 
 jobs:
   terraform:
-    name: 'Terraform'
+    name: 'build and push Image'
     runs-on: ubuntu-latest
     environment: hyq-dev
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
+        working-directory: terraform-create-ecr
         shell: bash
 
     steps:
