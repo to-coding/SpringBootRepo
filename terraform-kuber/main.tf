@@ -1,3 +1,6 @@
+provider "aws" {
+  region = "us-east-1"
+}
 data "aws_availability_zones" "available" {}
 
 data "terraform_remote_state" "eks" {
@@ -13,11 +16,6 @@ data "terraform_remote_state" "eks" {
 
 data "aws_eks_cluster" "cluster" {
   name = data.terraform_remote_state.eks.outputs.cluster_name
-}
-
-data "aws_ecr_image" "service_image" {
-  repository_name = var.container_image_name
-  image_tag       = var.container_image_tag
 }
 
 provider "kubernetes" {
@@ -36,7 +34,7 @@ provider "kubernetes" {
 }
 resource "kubernetes_deployment" "java" {
   metadata {
-    name   = var.deployment_name
+    name = var.deployment_name
     labels = {
       app = var.project_label
     }
@@ -56,7 +54,7 @@ resource "kubernetes_deployment" "java" {
       }
       spec {
         container {
-          image = data.aws_ecr_image.service_image
+          image = "160071257600.dkr.ecr.us-east-1.amazonaws.com/beach_ecr:latest"
           name  = var.container_name
           port {
             container_port = var.container_port
