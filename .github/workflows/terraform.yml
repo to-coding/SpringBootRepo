@@ -63,12 +63,6 @@ jobs:
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
-    - name: Build with Maven
-      run: |
-        cd ../
-        pwd
-        mvn clean
-        mvn verify
 
     - name: Build image
       env:
@@ -78,6 +72,8 @@ jobs:
       run: |
         cd ../
         pwd
+        mvn clean
+        mvn verify
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
