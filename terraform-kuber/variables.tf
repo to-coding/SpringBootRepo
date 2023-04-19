@@ -1,19 +1,19 @@
 variable "deployment_name" {
   description = "project name for deploy"
   type = string
-  default = "onbeach-deployment"
+  default = "beach-deployment"
 }
 
 variable "project_label" {
   description = "app label"
   type = string
-  default = "java-microservice"
+  default = "java-demo"
 }
 
 variable "container_name" {
   description = "spec container name"
   type = string
-  default = "java-onbeach-container"
+  default = "java-beach-container"
 }
 
 variable "container_image_name" {
