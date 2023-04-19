@@ -7,7 +7,7 @@ variable "region" {
 variable "cluster_name" {
   description = "default cluster name"
   type        = string
-  default     = "beach-eks"
+  default     = "beach-eks-test"
 }
 
 variable "vpc_name" {
