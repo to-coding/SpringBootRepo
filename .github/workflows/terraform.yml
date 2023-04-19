@@ -71,6 +71,19 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
     - name: Check out code
       uses: actions/checkout@v2
+
+  - uses: actions/checkout@v3
+  - uses: actions/setup-java@v3
+    with:
+      distribution: 'temurin'
+      java-version: '17'
+      cache: 'maven'
+  - name: Build with Maven
+    run: |
+      cd ../
+      pwd
+      mvn verify
+
     - name: Build image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -79,8 +92,6 @@ jobs:
       run: |
         cd ../
         pwd
-        mvn clean
-        mvn verify
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
