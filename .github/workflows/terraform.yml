@@ -69,8 +69,9 @@ jobs:
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
-    - name: Build image
+    - name: Check out code
       uses: actions/checkout@v2
+    - name: Build image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: beach-demo-project
