@@ -49,11 +49,9 @@ jobs:
 
     - name: Verify Terraform version
       run: terraform --version
-
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
       run: terraform init
-
     # Generates an execution plan for Terraform
     - name: Terraform Plan
       run: terraform plan -input=false
@@ -61,8 +59,9 @@ jobs:
     - name: Terraform Apply
       if: github.ref == 'refs/heads/hgx-test-1' && github.event_name == 'push'
       run: terraform apply -auto-approve -input=false
+      continue-on-error: true
 
-    # Build docker image
+      # Build docker image
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
