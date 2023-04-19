@@ -67,13 +67,12 @@ jobs:
 
     # Build docker image
     - name: Build image
+      working-directory: /
       run: |
         docker build -t beach-demo-project .
         aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 160071257600.dkr.ecr.us-east-1.amazonaws.com
         docker tag beach-demo-project:latest 160071257600.dkr.ecr.us-east-1.amazonaws.com/beach_ecr:latest
         docker push 160071257600.dkr.ecr.us-east-1.amazonaws.com/beach_ecr:latest
-      with:
-        working-directory: /
 
       # On push to your branch, build or change infrastructure according to Terraform configuration files
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
