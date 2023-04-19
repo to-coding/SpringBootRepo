@@ -16,10 +16,15 @@ variable "container_name" {
   default = "java-onbeach-container"
 }
 
-variable "container_image" {
+variable "container_image_name" {
   description = "the image need to deploy(ECR or dockerhub url)"
   type = string
-  default = ""
+  default = "demo"
+}
+variable "container_image_tag" {
+  description = "version of image"
+  type = string
+  default = "latest"
 }
 
 variable "container_port" {

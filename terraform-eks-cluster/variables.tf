@@ -7,19 +7,19 @@ variable "region" {
 variable "cluster_name" {
   description = "default cluster name"
   type        = string
-  default     = "onbeach-test-eks"
+  default     = "beach-eks"
 }
 
 variable "vpc_name" {
   description = "default vpc name"
   type        = string
-  default     = "onbeach-test-vpc"
+  default     = "beach-vpc"
 }
 
 variable "ecr_name" {
   description = "name of the ECR registry"
   type        = string
-  default     = "onbeach_ecr"
+  default     = "beach_ecr"
 }
 
 variable "image_mutability" {
@@ -38,4 +38,16 @@ variable "tags" {
   description = "the key-value maps for tagging"
   type        = map(string)
   default     = {}
+}
+
+variable "node_1_of_ng1" {
+  description = "node 1 of ng1"
+  type = string
+  default = "beach_node1"
+}
+
+variable "node_1_of_ng2" {
+  description = "node 1 of ng2"
+  type = string
+  default = "beach_node2"
 }

@@ -1,4 +1,11 @@
 terraform {
+    cloud {
+        organization = "example-org-b53b57"
+
+        workspaces {
+            name = "terraform-kuber"
+        }
+    }
     required_providers {
         aws = {
             source  = "hashicorp/aws"
@@ -13,10 +20,13 @@ terraform {
 }
 
 data "terraform_remote_state" "eks" {
-    backend = "local"
+    backend = "remote"
 
     config = {
-        path = "../terraform-eks-cluster/terraform.tfstate"
+        organization = "example-org-b53b57"
+        workspaces = {
+            name = "workspace01"
+        }
     }
 }
 
@@ -37,6 +47,11 @@ provider "kubernetes" {
             data.aws_eks_cluster.cluster.name
         ]
     }
+}
+
+data "aws_ecr_image" "service_image" {
+    repository_name = var.container_image_name
+    image_tag       = var.container_image_tag
 }
 
 resource "kubernetes_deployment" "java" {
@@ -61,7 +76,7 @@ resource "kubernetes_deployment" "java" {
             }
             spec {
                 container {
-                    image = var.container_image
+                    image = data.aws_ecr_image
                     name  = var.container_name
                     port {
                         container_port = var.container_port

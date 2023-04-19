@@ -4,13 +4,8 @@ provider "aws" {
 
 data "aws_availability_zones" "available" {}
 
-resource "random_string" "suffix" {
-  length  = 8
-  special = false
-}
-
 locals {
-  cluster_name = "${var.cluster_name}-${random_string.suffix.result}"
+  cluster_name = var.cluster_name
 }
 
 module "vpc" {
@@ -57,8 +52,8 @@ module "eks" {
   }
 
   eks_managed_node_groups = {
-    one = {
-      name = "node-group-1"
+    first_ng = {
+      name = var.node_1_of_ng1
 
       instance_types = ["t3.small"]
 
@@ -67,8 +62,8 @@ module "eks" {
       desired_size = 2
     }
 
-    two = {
-      name = "node-group-2"
+    second_ng = {
+      name =var.node_1_of_ng2
 
       instance_types = ["t3.small"]
 
