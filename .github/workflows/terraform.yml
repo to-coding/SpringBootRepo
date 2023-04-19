@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   terraform-eks:
-    name: 'Terraform-1'
+    name: 'Job1-create-EKS-ECR'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -84,7 +84,7 @@ jobs:
         # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
   terraform-kubernetes:
     needs: terraform-eks
-    name: 'terraform-2'
+    name: 'Job2-deploy-to-eks'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -123,8 +123,8 @@ jobs:
         run: terraform plan -input=false
         continue-on-error: true
 
-        # On push to your branch, build or change infrastructure according to Terraform configuration files
-        # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
-#      - name: Terraform Apply
-#        if: github.ref == 'refs/heads/hgx-test-1' && github.event_name == 'push'
-#        run: terraform apply -auto-approve -input=false
+#         On push to your branch, build or change infrastructure according to Terraform configuration files
+#         Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/hgx-test-1' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
