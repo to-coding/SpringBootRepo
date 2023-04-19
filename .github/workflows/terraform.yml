@@ -58,6 +58,9 @@ jobs:
     - name: Terraform Plan
       run: terraform plan -input=false
       continue-on-error: true
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/hgx-test-1' && github.event_name == 'push'
+      run: terraform apply -auto-approve -input=false
 
     # Build docker image
     - name: Login to Amazon ECR
@@ -73,15 +76,14 @@ jobs:
         pwd
         mvn clean
         mvn verify
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 160071257600.dkr.ecr.us-east-1.amazonaws.com
+        docker build -t $ECR_REPOSITORY .
+        docker tag $ECR_REPOSITORY:$IMAGE_TAG 160071257600.dkr.ecr.us-east-1.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
   
         # On push to your branch, build or change infrastructure according to Terraform configuration files
         # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
-    - name: Terraform Apply
-      if: github.ref == 'refs/heads/hgx-test-1' && github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false
   terraform-kubernetes:
     needs: terraform-eks
     name: 'terraform-2'
