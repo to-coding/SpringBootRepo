@@ -81,7 +81,7 @@ jobs:
         aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_REGISTRY
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        echo "ecr_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
   
         # On push to your branch, build or change infrastructure according to Terraform configuration files
         # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
@@ -155,13 +155,15 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Update eks config
-        run: aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name ${{ vars.CLUSTER_NAME }}
+        run: |
+          echo "image url = ${{ needs.terraform-eks.outputs.ecr_image }}"
+          aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name ${{ vars.CLUSTER_NAME }}
 
       - name: Build and push CONTAINER_NAME
         id: kubectl
         uses: ianbelcher/eks-kubectl-action@master
         with:
-          args: patch deployment beach-deployment --patch-file patch-file.yaml
+          args: rollout restart deployment/beach-deployment
       # --- #
       - name: Use the output
         run: echo "${{ steps.kubectl.outputs.kubectl-out }}"
