@@ -32,6 +32,7 @@ provider "kubernetes" {
       data.aws_eks_cluster.cluster.name
     ]
   }
+  load_config_file       = false
 }
 
 resource "kubernetes_deployment" "newest-springboot" {
