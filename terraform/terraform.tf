@@ -19,9 +19,16 @@ terraform {
       version = "~> 4.0.4"
     }
 
-    cloudinit = {
-      source  = "hashicorp/cloudinit"
-      version = "~> 2.2.0"
+#    cloudinit = {
+#      source  = "hashicorp/cloudinit"
+#      version = "~> 2.2.0"
+#    }
+  }
+  cloud {
+    organization = "example-org-512516"
+
+    workspaces {
+      name = "learn-terraform-github-actions"
     }
   }
 
