@@ -28,7 +28,7 @@ terraform {
     organization = "example-org-512516"
 
     workspaces {
-      name = "learn-terraform-github-actions"
+      name = "terraform-deployment"
     }
   }
 

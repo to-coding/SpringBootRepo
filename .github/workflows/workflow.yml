@@ -5,10 +5,6 @@ on:
     branches:
       - bsh-test
   pull_request:
-env:
-  AWS_REGION: ap-southeast-2
-  ECR_REPOSITORY: kubernetes-github-actions
-  SHORT_SHA: $(echo ${{ github.sha }} | cut -c 1-8)
 jobs:
   create-EKS-resource:
     name: "create eks resource"
@@ -214,3 +210,29 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/bsh-test' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
+  kuberctl-redeploy:
+    needs: [create-deployment]
+    name: 'redeploy'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    environment: dev-bsh
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configure AWS Credentials Action
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Update image
+        run: |
+          set image deployment.apps/${{ vars.DEPLOYMENT_NAME }} clockbox:=clockbox:latest
+      - name: ReDeployment
+        run: kubectl rollout restart deployment/${{ vars.DEPLOYMENT_NAME }}
