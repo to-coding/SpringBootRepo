@@ -13,10 +13,13 @@ terraform {
 }
 
 data "terraform_remote_state" "eks" {
-  backend = "local"
+  backend = "remote"
 
   config = {
-    path = "../terraform-create-eks/terraform.tfstate"
+    organization = "example-org-512516"
+    workspaces = {
+      name = "learn-terraform-github-actions"
+    }
   }
 }
 
