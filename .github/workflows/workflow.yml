@@ -134,6 +134,7 @@ jobs:
     name: "create deployment"
     runs-on: ubuntu-latest
     environment: dev-bsh
+    needs: create-EKS-resource
     permissions:
       pull-requests: write
     defaults:
