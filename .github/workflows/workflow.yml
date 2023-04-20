@@ -1,4 +1,4 @@
-name: "Terraform"
+name: "Deployment"
 
 on:
   push:
@@ -133,7 +133,7 @@ jobs:
     name: "create deployment"
     runs-on: ubuntu-latest
     environment: dev-bsh
-#    needs: [build-and-push-image, create-EKS-resource]
+    needs: [build-and-push-image, create-EKS-resource]
     permissions:
       pull-requests: write
     defaults:
