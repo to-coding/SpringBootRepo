@@ -5,7 +5,7 @@ data "terraform_remote_state" "eks" {
   config = {
     organization = "example-org-512516"
     workspaces = {
-      name = "terraform-deployment"
+      name = "terraform-create-eks"
     }
   }
 }
