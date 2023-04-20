@@ -68,9 +68,6 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Test config EKS
-      run: aws eks --region us-east-1 update-kubeconfig --name beach-eks-test
-
     - name: Build image
       env:
         ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
@@ -164,11 +161,7 @@ jobs:
         id: kubectl
         uses: ianbelcher/eks-kubectl-action@master
         with:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: ${{ vars.AWS_REGION }}
-          cluster_name: ${{ vars.CLUSTER_NAME }}
-          args: patch deployment beach-deployment -p
+          args: patch deployment beach-deployment --patch-file patch-file.yaml
       # --- #
       - name: Use the output
         run: echo "${{ steps.kubectl.outputs.kubectl-out }}"
