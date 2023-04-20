@@ -1,5 +1,5 @@
 resource "aws_route_table" "private" {
-  vpc_id = aws_vpc.demo-hyq.id
+  vpc_id = aws_vpc.demo.id
 
   route = [
     {
@@ -25,7 +25,7 @@ resource "aws_route_table" "private" {
 }
 
 resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.demo-hyq.id
+  vpc_id = aws_vpc.demo.id
 
   route = [
     {

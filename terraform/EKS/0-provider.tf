@@ -1,3 +1,4 @@
+
 provider "aws" {
   region = "ap-southeast-2"
 }
@@ -5,10 +6,11 @@ provider "aws" {
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
     }
   }
-  cloud {
+   cloud {
     organization = "hyq"
 
     workspaces {
