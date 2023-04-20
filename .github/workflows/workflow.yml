@@ -235,4 +235,4 @@ jobs:
         run: |
           set image deployment.apps/${{ vars.DEPLOYMENT_NAME }} clockbox:=clockbox:latest
       - name: ReDeployment
-        run: kubectl rollout restart deployment/${{ vars.DEPLOYMENT_NAME }}
+        run: rollout restart deployment/${{ vars.DEPLOYMENT_NAME }}
