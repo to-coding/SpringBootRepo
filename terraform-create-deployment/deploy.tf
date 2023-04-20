@@ -25,7 +25,7 @@ data "terraform_remote_state" "eks" {
 
 # Retrieve EKS cluster information
 provider "aws" {
-  region = data.terraform_remote_state.eks.outputs.region
+  region = var.region
 }
 
 data "aws_eks_cluster" "cluster" {
@@ -47,7 +47,7 @@ provider "kubernetes" {
   }
 }
 
-resource "kubernetes_deployment" "clockbox" {
+resource "kubernetes_deployment" "newest-springboot" {
   metadata {
     name = "scalable-springboot-example"
     labels = {
@@ -93,13 +93,13 @@ resource "kubernetes_deployment" "clockbox" {
   }
 }
 
-resource "kubernetes_service" "clockbox" {
+resource "kubernetes_service" "newest-springboot" {
   metadata {
     name = "springboot-example"
   }
   spec {
     selector = {
-      App = kubernetes_deployment.clockbox.spec.0.template.0.metadata[0].labels.App
+      App = kubernetes_deployment.newest-springboot.spec.0.template.0.metadata[0].labels.App
     }
     port {
       port        = 80
@@ -112,6 +112,6 @@ resource "kubernetes_service" "clockbox" {
 
 
 output "lb_ip" {
-  value = kubernetes_service.clockbox.status.0.load_balancer.0.ingress.0.hostname
+  value = kubernetes_service.newest-springboot.status.0.load_balancer.0.ingress.0.hostname
 }
 
