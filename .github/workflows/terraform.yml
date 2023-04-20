@@ -53,8 +53,8 @@ jobs:
 
     - name: Test config EKS
       run: |
-        echo "${{ steps.terra-version.outputs }}"
-        aws eks --region {{ vars.AWS_REGION }}  update-kubeconfig --name ${{ vars.CLUSTER_NAME }}
+        echo "${{ steps.terra-version.outputs.* }}"
+        aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
