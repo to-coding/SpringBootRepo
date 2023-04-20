@@ -48,17 +48,27 @@ jobs:
         aws-region: ${{ vars.AWS_REGION }}
 
     - name: Verify Terraform version
+      id: terra-version
       run: terraform --version
+
+    - name: Test config EKS
+      run: |
+        echo "${{ steps.terra-version.outputs }}"
+        aws eks --region {{ vars.AWS_REGION }}  update-kubeconfig --name ${{ vars.CLUSTER_NAME }}
+
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
       run: terraform init
     # Generates an execution plan for Terraform
     - name: Terraform Plan
+      id: terra-plan
       run: terraform plan -input=false
       continue-on-error: true
     - name: Terraform Apply
       if: github.ref == 'refs/heads/hgx-test-1' && github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false
+      run: |
+        echo "${{ steps.terra-plan.outputs }}"
+        terraform apply -auto-approve -input=false
       continue-on-error: true
 
       # Build docker image
@@ -82,6 +92,7 @@ jobs:
   
         # On push to your branch, build or change infrastructure according to Terraform configuration files
         # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
+
 
   terraform-kubernetes:
     needs: terraform-eks
