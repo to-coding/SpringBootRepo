@@ -5,10 +5,13 @@ on:
     branches:
       - bsh-test
   pull_request:
-
+env:
+  AWS_REGION: ap-southeast-2
+  ECR_REPOSITORY: kubernetes-github-actions
+  SHORT_SHA: $(echo ${{ github.sha }} | cut -c 1-8)
 jobs:
-  terraform:
-    name: "Terraform"
+  create-EKS-resource:
+    name: "create eks resource"
     runs-on: ubuntu-latest
     environment: dev-bsh
     permissions:
@@ -16,7 +19,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: terraform
+        working-directory: terraform-create-eks
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -93,7 +96,8 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/bsh-test' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
-  build:
+  build-and-push-image:
+    name: "build and push image"
     runs-on: ubuntu-latest
     environment: dev-bsh
 
@@ -126,23 +130,3 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/clockbox:latest
-  deploy:
-    name: deploy to cluster
-    runs-on: ubuntu-latest
-    environment: dev-bsh
-    steps:
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
-    - name: deploy to cluster
-      uses: kodermax/kubectl-aws-eks@master
-      env:
-        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA_STAGING }}
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: my-app
-        IMAGE_TAG: ${{ github.sha }}
-      with:
-        aws-region: ap-southeast-2
-        args: set image deployment/$ECR_REPOSITORY $ECR_REPOSITORY=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
