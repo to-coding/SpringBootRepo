@@ -48,13 +48,7 @@ jobs:
         aws-region: ${{ vars.AWS_REGION }}
 
     - name: Verify Terraform version
-      id: terra-version
       run: terraform --version
-
-    - name: Test config EKS
-      run: |
-        echo "${{ steps.terra-version.outputs.* }}"
-        aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
@@ -67,7 +61,7 @@ jobs:
     - name: Terraform Apply
       if: github.ref == 'refs/heads/hgx-test-1' && github.event_name == 'push'
       run: |
-        echo "${{ steps.terra-plan.outputs }}"
+        echo "${{ steps.terra-plan.outputs.var }}"
         terraform apply -auto-approve -input=false
       continue-on-error: true
 
@@ -75,6 +69,10 @@ jobs:
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Test config EKS
+      run: aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
+
     - name: Build image
       env:
         ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
