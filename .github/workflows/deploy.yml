@@ -18,7 +18,7 @@ jobs:
           distribution: 'temurin'
       - run: mvn --batch-mode --update-snapshots verify
         working-directory: demo
-      - run: mkdir staging && cp target/*.jar staging
+      - run: mkdir staging && cp demo/target/*.jar staging
 
       - uses: actions/upload-artifact@v3
         with:
