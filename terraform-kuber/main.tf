@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-east-1"
+  region = var.region
 }
 data "aws_availability_zones" "available" {}
 
@@ -32,6 +32,11 @@ provider "kubernetes" {
     ]
   }
 }
+
+data "aws_ecr_image" "most_recent" {
+  repository_name = var.repository_name
+  image_tag = "latest"
+}
 resource "kubernetes_deployment" "java" {
   metadata {
     name = var.deployment_name
@@ -54,8 +59,9 @@ resource "kubernetes_deployment" "java" {
       }
       spec {
         container {
-          image = "160071257600.dkr.ecr.us-east-1.amazonaws.com/beach_ecr:latest"
+          image = "${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/${data.aws_ecr_image.most_recent.repository_name}:${data.aws_ecr_image.most_recent.image_tag}"
           name  = var.container_name
+          image_pull_policy = "Always"
           port {
             container_port = var.container_port
           }

@@ -1,3 +1,8 @@
+variable "region" {
+  description = "region"
+  type = string
+  default = "us-east-1"
+}
 variable "deployment_name" {
   description = "project name for deploy"
   type        = string
@@ -16,16 +21,11 @@ variable "container_name" {
   default     = "java-beach-container"
 }
 
-#variable "container_image_name" {
-#  description = "the image need to deploy(ECR or dockerhub url)"
-#  type        = string
-#  default     = "demo"
-#}
-#variable "container_image_tag" {
-#  description = "version of image"
-#  type        = string
-#  default     = "latest"
-#}
+variable "repository_name" {
+  description = "ECR repository created in terraform-eks-cluster"
+  type        = string
+  default     = "beach_ecr"
+}
 
 variable "container_port" {
   description = "open port in container"
@@ -37,4 +37,9 @@ variable "service_name" {
   description = "java service name"
   type        = string
   default     = "java-onbeach-service"
+}
+variable "aws_account_id" {
+  description = "account id"
+  type = string
+  default = "160071257600"
 }

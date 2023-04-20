@@ -82,9 +82,10 @@ jobs:
   
         # On push to your branch, build or change infrastructure according to Terraform configuration files
         # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
+
   terraform-kubernetes:
     needs: terraform-eks
-    name: 'Job2-deploy-to-eks'
+    name: 'Job2-create-deployment'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -128,3 +129,31 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/hgx-test-1' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
+
+  kuberctl-redeploy:
+    needs: [terraform-eks, terraform-kubernetes]
+    name: 'Job3-re-deploy'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    environment: dev
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Update eks config
+        run: aws eks --region {{ vars.AWS_REGION update-kubeconfig }} --name ${{ vars.CLUSTER_NAME }}
+      - name: Build and push CONTAINER_NAME
+        id: kubectl
+        uses: ianbelcher/eks-kubectl-action@master
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ vars.AWS_REGION }}
+          cluster_name: ${{ vars.CLUSTER_NAME }}
+          args: patch deployment beach-deployment -p
+      # --- #
+      - name: Use the output
+        run: echo "${{ steps.kubectl.outputs.kubectl-out }}"
