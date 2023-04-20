@@ -57,12 +57,10 @@ jobs:
     - name: Terraform Plan
       id: terra-plan
       run: terraform plan -input=false
-      continue-on-error: true
+
     - name: Terraform Apply
       if: github.ref == 'refs/heads/hgx-test-1' && github.event_name == 'push'
-      run: |
-        echo "${{ steps.terra-plan.outputs.var }}"
-        terraform apply -auto-approve -input=false
+      run: terraform apply -auto-approve -input=false
       continue-on-error: true
 
       # Build docker image
@@ -104,9 +102,6 @@ jobs:
         working-directory: terraform-kuber
         shell: bash
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
       # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -150,10 +145,17 @@ jobs:
       run:
         shell: bash
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Configure AWS Credentials Action
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
       - name: Update eks config
         run: aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name ${{ vars.CLUSTER_NAME }}
+
       - name: Build and push CONTAINER_NAME
         id: kubectl
         uses: ianbelcher/eks-kubectl-action@master
