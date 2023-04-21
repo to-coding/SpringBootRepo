@@ -57,7 +57,7 @@ resource "kubernetes_deployment" "demo" {
       }
       spec {
         container {
-          image = "nginx:1.7.8"
+          image = "160071257600.dkr.ecr.ap-southeast-2.amazonaws.com/beach-hyq:latest"
           name  = "example"
 
           port {
