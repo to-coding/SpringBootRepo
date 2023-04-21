@@ -85,6 +85,7 @@ jobs:
           IMAGE_TAG: latest
         run: |
           cd ../../
+          mvn package
           # Build a docker container and push it to ECR 
           aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 160071257600.dkr.ecr.ap-southeast-2.amazonaws.com
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
