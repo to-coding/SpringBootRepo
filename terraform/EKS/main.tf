@@ -5,7 +5,7 @@ provider "aws" {
 data "aws_availability_zones" "available" {}
 
 locals {
-  cluster_name = "terraform-eks-cluster-hyq-test"
+  cluster_name = "terraform-test-eks"
 }
 
 module "vpc" {
