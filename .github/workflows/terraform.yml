@@ -153,8 +153,8 @@ jobs:
 
       - name: Deployment
         run: |
-          aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name ${{ vars.CLUSTER_NAME }}
-          kubectl rollout restart deployment/beach-deployment
+          aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name terraform-test-eks
+          kubectl rollout restart deployment/beach-hyq
           
           
         
