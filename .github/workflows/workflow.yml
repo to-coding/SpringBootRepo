@@ -230,10 +230,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ vars.AWS_REGION }}
-
       - name: Update image
         run: |
-#          set image deployment.apps/${{ vars.DEPLOYMENT_NAME }} clockbox:=clockbox:latest
           aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name new-education-eks
       - name: Redeployment
         run: kubectl rollout restart deployment/${{ vars.DEPLOYMENT_NAME }}
