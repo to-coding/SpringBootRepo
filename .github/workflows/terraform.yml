@@ -95,7 +95,7 @@ jobs:
 
   terraform-deploy:
     needs: terraform-create-eks
-    name: 'create image and push to ecr'
+    name: 'create image and push to eks'
     runs-on: ubuntu-latest
     environment: hyq-dev
 
@@ -150,3 +150,6 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/hyq-test-1' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
+
+      - name: deployment
+

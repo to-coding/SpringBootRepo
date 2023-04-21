@@ -5,7 +5,7 @@ data "terraform_remote_state" "eks" {
     organization = "hyq"
 
     workspaces = {
-      name = "hyq-depolyment"
+      name = "hyq-workspace"
     }
   }
 }
