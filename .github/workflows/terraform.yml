@@ -151,5 +151,3 @@ jobs:
         if: github.ref == 'refs/heads/hyq-test-1' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
 
-      - name: deployment
-
