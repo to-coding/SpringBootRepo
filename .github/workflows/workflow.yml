@@ -234,4 +234,4 @@ jobs:
         run: |
           aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name new-education-eks
       - name: Redeployment
-        run: kubectl rollout restart deployment/${{ vars.DEPLOYMENT_NAME }}
+        run: kubectl rollout restart deployment/scalable-springboot-example
