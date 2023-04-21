@@ -96,3 +96,7 @@ resource "kubernetes_service" "demo" {
     type = "LoadBalancer"
   }
 }
+
+output "hostname" {
+  value = kubernetes_service.demo.status.0.load_balancer.0.ingress.0.hostname
+}
