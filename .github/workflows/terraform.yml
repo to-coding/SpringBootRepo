@@ -154,7 +154,7 @@ jobs:
       - name: Deployment
         run: |
           aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name terraform-test-eks
-          kubectl rollout restart deployment/beach-hyq
+          kubectl rollout restart deployment/hyq-beach-app
           
           
         
