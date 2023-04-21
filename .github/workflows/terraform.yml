@@ -31,6 +31,13 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
+      - name: Setup mvn
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
       #configure aws credentials Action
       - name: Configure AWS Credentials Action For GitHub Actions
         uses: aws-actions/configure-aws-credentials@v1
@@ -78,8 +85,6 @@ jobs:
           IMAGE_TAG: latest
         run: |
           cd ../../
-          pwd
-          mvn package
           # Build a docker container and push it to ECR 
           aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 160071257600.dkr.ecr.ap-southeast-2.amazonaws.com
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
