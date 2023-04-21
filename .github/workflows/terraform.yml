@@ -161,9 +161,3 @@ jobs:
 
       - name: ReDeployment
         run: kubectl rollout restart deployment/beach-deployment
-
-#      - name: Build and push CONTAINER_NAME
-#        id: kubectl
-#        uses: ianbelcher/eks-kubectl-action@master
-#        with:
-#          args: rollout restart deployment/beach-deployment
