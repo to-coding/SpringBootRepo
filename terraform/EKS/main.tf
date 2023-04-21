@@ -34,7 +34,6 @@ module "vpc" {
     "kubernetes.io/role/internal-elb"             = 1
   }
 }
-
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "19.5.1"
