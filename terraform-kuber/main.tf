@@ -7,9 +7,9 @@ data "terraform_remote_state" "eks" {
   backend = "remote"
 
   config = {
-    organization = "example-org-b53b57"
+    organization = "to-coding"
     workspaces = {
-      name = "workspace01"
+      name = "test"
     }
   }
 }

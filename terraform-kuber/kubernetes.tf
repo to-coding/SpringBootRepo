@@ -1,11 +1,12 @@
 terraform {
   cloud {
-    organization = "example-org-b53b57"
+    organization = "to-coding"
 
     workspaces {
-      name = "terraform-kuber"
+      name = "test"
     }
   }
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
