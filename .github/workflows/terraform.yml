@@ -1,0 +1,163 @@
+name: 'Terraform'
+
+on:
+  push:
+    branches: [ "hgx-test-1" ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  terraform-eks:
+    name: 'Job1-create-EKS-ECR'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    environment: dev
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        working-directory: terraform-eks-cluster
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup mvn
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        cache: 'maven'
+
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    - name: Configure AWS Credentials Action For GitHub Actions
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+        aws-region: ${{ vars.AWS_REGION }}
+
+    - name: Verify Terraform version
+      run: terraform --version
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run: terraform init
+    # Generates an execution plan for Terraform
+    - name: Terraform Plan
+      id: terra-plan
+      run: terraform plan -input=false
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/hgx-test-1' && github.event_name == 'push'
+      run: terraform apply -auto-approve -input=false
+      continue-on-error: true
+
+      # Build docker image
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build image
+      env:
+        ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+        ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+        IMAGE_TAG: latest
+      run: |
+        cd ../
+        pwd
+        mvn clean
+        mvn verify
+        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_REGISTRY
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        echo "ecr_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+  
+        # On push to your branch, build or change infrastructure according to Terraform configuration files
+        # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
+
+
+  terraform-kubernetes:
+    needs: terraform-eks
+    name: 'Job2-create-deployment'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    environment: dev
+    defaults:
+      run:
+        working-directory: terraform-kuber
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Verify Terraform version
+        run: terraform --version
+
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        run: terraform init
+
+      # Checks that all Terraform configuration files adhere to a canonical format
+      - name: Terraform Format
+        run: terraform fmt
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      # Generates an execution plan for Terraform
+      - name: Terraform Plan
+        run: terraform plan -input=false
+        continue-on-error: true
+
+#         On push to your branch, build or change infrastructure according to Terraform configuration files
+#         Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/hgx-test-1' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
+
+  kuberctl-redeploy:
+    needs: [terraform-eks, terraform-kubernetes]
+    name: 'Job3-re-deploy'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    environment: dev
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configure AWS Credentials Action
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Update eks config
+        run: |
+          echo "image url = ${{ needs.terraform-eks.outputs.ecr_image }}"
+          aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name ${{ vars.CLUSTER_NAME }}
+
+      - name: ReDeployment
+        run: kubectl rollout restart deployment/beach-deployment
