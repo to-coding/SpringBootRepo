@@ -1,7 +1,7 @@
 variable "region" {
   description = "region"
   type = string
-  default = "eu-central-1"
+  default = "us-west-1"
 }
 variable "deployment_name" {
   description = "project name for deploy"
